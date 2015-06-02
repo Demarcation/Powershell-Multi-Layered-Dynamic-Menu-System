@@ -17,7 +17,8 @@ Help info is included in the script, contact me for the rest
 #Example useage
 For a useage example see https://github.com/manicd/Powershell-Multi-Layered-Dynamic-Menu-System/blob/master/Example-Usage
 
-
+#Link 
+Link back to my site http://www.ashleyunwin.com/powershell-multi-layered-dynamic-menu-system/
 
 	
 	
