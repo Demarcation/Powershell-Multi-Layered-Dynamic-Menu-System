@@ -1,0 +1,42 @@
+#How to create a Menu HashTable
+
+Layout:
+The HashTable Keys are listed as items in the menu.
+The HashTable Values are treated depending on the content, If its another HastTable then its displayed as a sub menu, or if its a String Value, the string value is assumed to be the name of a function to be called if the option is selected. 
+
+Example:
+[HashTable]$MenuHash=@{ 
+	"1a"=@{	"1a 2a"="1a2aValue"
+			"1a 2b"="1a2bValue"
+			"1a 2c"="1a2cValue"}
+	"1b"=@{	"1b 2a"=@{
+				"1b 2a 3a"=@{
+					"1b 2a 3a 4a"=@{
+						"1b 2a 3a 4a 5a"="1b2a3a4a5aValue"
+						"1b 2a 3a 4a 5b"="1b2a3a4a5bValue"
+						"1b 2a 3a 4a 5c"="1b2a3a4a5aValue"}
+					"1b 2a 3a 4b"="1b2a3a4bValue"
+					"1b 2a 3a 4c"="1b2a3a4cValue"}
+				"1b 2a 3b"="1b2a3bValue"
+				"1b 2a 3c"="1b2a3cValue"}
+			"1b 2b"="1b2bValue"
+			"1b 2c"="1b2cValue"}
+	"1c"=@{	"1c 2a"="1c2aValue"
+			"1c 2b"="1c2bValue"
+			"1c 2c"="1c2cValue"}
+	"1d"="1dValue"}
+
+#Example Useage:
+
+Generation of a HashTable can be done easily, The below example when logged into the Microsoft 365 system will list all the users, when selected the value passes the UserPrincipalName to a Password Reset Function that accepts the input under the variable $xUser.
+
+#Create the Menu Hash Table Object	
+$xMenuHash = New-Object System.Collections.HashTable
+
+#Create Menu Structure Hash Table and set values to be function with UPN as input
+get-msoluser | sort-object UserPrincipalName | select UserPrincipalName | foreach-object {
+			$xMenuHash.add($_.UserPrincipalName,"fResetUserPasswordsCollectPass -xUser "+$_.UserPrincipalName)
+		}
+		
+#Call the Menu	
+use-menu -MenuHash $xMenuHash -Title "Reset User Password" -NoSplash $True
