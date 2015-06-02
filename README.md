@@ -14,7 +14,8 @@ Use-Menu -MenuHash <HashTable> -Title <String>
 Help info is included in the script, contact me for the rest
 
 
-
+#Example useage
+For a useage example see https://github.com/manicd/Powershell-Multi-Layered-Dynamic-Menu-System/blob/master/Example-Usage
 
 
 
