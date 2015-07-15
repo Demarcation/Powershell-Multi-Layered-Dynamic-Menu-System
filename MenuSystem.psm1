@@ -39,7 +39,7 @@ function global:Use-Menu {
 
 .PARAMETER
  
- <Continue>
+ <xContinue>
  A $True value lets the system know this is a continuation from a previous Menu Loop, No value or a $False value resets the menu to the top level.
 
 .PARAMETER
@@ -113,7 +113,7 @@ HelpMessage='Defines a HashTable or Nested HashTables that create the layout of 
 	
 [Parameter(position=1,
 HelpMessage='A $True value lets the system know this is a continuation from a previous Menu Loop, No value or a $False value resets the menu to the top level.')]
-[bool]$Continue,
+[bool]$xContinue,
 
 [Parameter(position=2,
 HelpMessage='A $True value prevents the Splash Screen from appearing, no value or a $False value allows the Splash Screen to run.')]
@@ -125,7 +125,11 @@ $SelectionHist,
 
 [Parameter(position=4,
 HelpMessage='Defines the menu title at the top of the page.')]
-[string]$Title="System Menu"
+[string]$Title="System Menu",
+
+[Parameter(position=5,
+HelpMessage='Should the menu auto sort the list .')]
+[bool]$NoSort = 0 
 )
 
 	Begin{}
@@ -134,7 +138,7 @@ HelpMessage='Defines the menu title at the top of the page.')]
 
 		#Run Splash Screen unless requested not to or if not in first loop
 		if ($NoSplash -ne $true) {
-			if ($continue -ne $true) {
+			if ($xContinue -ne $true) {
 				Start-SplashScreen
 			}
 		}
@@ -146,7 +150,8 @@ HelpMessage='Defines the menu title at the top of the page.')]
 			$CurrentMenu=$MenuHash
 			
 			#Check if we are continuing from a previous loop
-			if ($Continue) {
+			if ($xContinue) {
+			$global:SelectionHist = $SelectionHist
 			}else{
 			#If we are not continuing then ensure the selection history is blank to reset to top level menu
 			$SelectionHist = $null
@@ -174,8 +179,14 @@ HelpMessage='Defines the menu title at the top of the page.')]
 			$i=1
 			$array=@("0")
 			
+			If ($NoSort) {
+				$Menu = $CurrentMenu.keys
+			}else{
+				$Menu = $CurrentMenu.keys | sort-object
+			}
+			
 			#Run through the Keys in the hash table in alphabetical order
-			foreach ($MenuItem in $CurrentMenu.keys | sort-object) { 
+			foreach ($MenuItem in $Menu) { 
 				#Look to see if its a menu or a function
 				if ($CurrentMenu[$menuitem] -is [hashtable]) {
 					write-host "`t`t" $i "-" $MenuItem "Menu" -Fore Cyan
@@ -207,12 +218,13 @@ HelpMessage='Defines the menu title at the top of the page.')]
 					cls
 					write-host "`n`n`t`tThat was not a valid selection" -ForegroundColor Red
 					start-sleep -s 1
-					Use-Menu -MenuHash $MenuHash -selectionhist $selectionhist -continue 1 -title $title
+					Use-Menu -MenuHash $MenuHash -selectionhist $selectionhist -xcontinue 1 -title $title
 			}
 
 			#If they said Quit, Quit
 			if ($xInput -eq "q") {
 				cls
+				$global:Quit = $true
 				return
 			}
 			
@@ -223,7 +235,7 @@ HelpMessage='Defines the menu title at the top of the page.')]
 				#Remove the last item in the array, in order to allow moving back one level
 				$selectionhist.removerange($q,1)
 				#Jump to the start sending the Hash and selection history along, also say this is a continuation and not a fresh call for the menu. 
-				Use-Menu -MenuHash $MenuHash -selectionhist $selectionhist -continue 1 -title $title
+				Use-Menu -MenuHash $MenuHash -selectionhist $selectionhist -xcontinue 1 -title $title
 				return
 			}
 			
@@ -247,7 +259,7 @@ HelpMessage='Defines the menu title at the top of the page.')]
 						#if its a new menu then add the option to the selection history
 						$selectionhist.add($xInput2)
 						#Jump to the start sending the Hash and selection history along, also say this is a continuation and not a fresh call for the menu.
-						Use-Menu -MenuHash $MenuHash -SelectionHist $SelectionHist -Continue $true -Title $Title
+						Use-Menu -MenuHash $MenuHash -SelectionHist $SelectionHist -xContinue $true -Title $Title
 					}else{
 						#If we didn't get a hash, then it must be a value of which we need to run the corresponding function and quit the menu
 						cls
@@ -259,14 +271,14 @@ HelpMessage='Defines the menu title at the top of the page.')]
 				cls
 				write-host "`n`n`t`tThat was not a valid selection" -ForegroundColor Red
 				start-sleep -s 1
-				Use-Menu -MenuHash $MenuHash -SelectionHist $SelectionHist -Continue $True -Title $Title
+				Use-Menu -MenuHash $MenuHash -SelectionHist $SelectionHist -xContinue $True -Title $Title
 				}
 			} else {
 				#If they entered some random character then error for a few seconds then re-print the same menu
 				cls
 				write-host "`n`n`t`tThat was not a valid selection" -ForegroundColor Red
 				start-sleep -s 1
-				Use-Menu -MenuHash $MenuHash -SelectionHist $SelectionHist -Continue $True -Title $Title
+				Use-Menu -MenuHash $MenuHash -SelectionHist $SelectionHist -xContinue $True -Title $Title
 			}	
 		}	
 
