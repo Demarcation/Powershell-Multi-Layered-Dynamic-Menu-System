@@ -224,7 +224,7 @@ HelpMessage='Should the menu auto sort the list .')]
 			#If they said Quit, Quit
 			if ($xInput -eq "q") {
 				cls
-				$global:Quit = $true
+				$global:QuitMenu = $true
 				return
 			}
 			
